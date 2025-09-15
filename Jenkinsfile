@@ -6,9 +6,9 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE = "${env.BRANCH_NAME == 'main' ? 'nodemain' : 'nodedev'}"
+        DOCKER_IMAGE = "${env.BRANCH_NAME == 'master' ? 'nodemain' : 'nodedev'}"
         DOCKER_TAG = 'v1.0'
-        HOST_PORT = "${env.BRANCH_NAME == 'main' ? '3000' : '3001'}"
+        HOST_PORT = "${env.BRANCH_NAME == 'master' ? '3000' : '3001'}"
     }
 
     stages {
