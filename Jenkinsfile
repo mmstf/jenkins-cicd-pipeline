@@ -41,8 +41,10 @@ pipeline {
                 script {
                     sh """
                         OLD_CONTAINER=\$(docker ps -q --filter ancestor=${DOCKER_IMAGE}:${DOCKER_TAG})
-                        docker stop \$OLD_CONTAINER
-                        docker rm \$OLD_CONTAINER
+                        if [[ \$OLD_CONTAINER != "" ]]; then
+                            docker stop \$OLD_CONTAINER
+                            docker rm \$OLD_CONTAINER
+                        fi
                     """
 
                     sh "docker run -d --expose 3000 -p ${HOST_PORT}:3000 ${DOCKER_IMAGE}:${DOCKER_TAG}"
