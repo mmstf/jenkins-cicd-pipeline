@@ -51,7 +51,7 @@ pipeline {
         }
     }
 
-    port {
+    post {
         always {
             cleanWs()
         }
