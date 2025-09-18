@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE = "${env.BRANCH_NAME == 'master' ? 'nodemain' : 'nodedev'}"
+        DOCKER_IMAGE = "${env.BRANCH_NAME == 'master' ? 'mmstf/nodemain' : 'mmstf/nodedev'}"
         DOCKER_TAG = 'v1.0'
         HOST_PORT = "${env.BRANCH_NAME == 'master' ? '3000' : '3001'}"
         CONTAINER_NAME = "${env.BRANCH_NAME == 'master' ? 'main-app' : 'dev-app'}"
