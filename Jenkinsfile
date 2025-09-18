@@ -57,7 +57,7 @@ pipeline {
 
         stage('Trigger deployment pipeline') {
             steps {
-                build job: ${env.DEPLOYMENT_PIPELINE_NAME}
+                build job: "${env.DEPLOYMENT_PIPELINE_NAME}"
             }
         }
     }
