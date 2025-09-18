@@ -9,6 +9,7 @@ pipeline {
         DOCKER_IMAGE = "${env.BRANCH_NAME == 'master' ? 'nodemain' : 'nodedev'}"
         DOCKER_TAG = 'v1.0'
         HOST_PORT = "${env.BRANCH_NAME == 'master' ? '3000' : '3001'}"
+        CONTAINER_NAME = "${env.BRANCH_NAME == 'master' ? 'main-app' : 'dev-app'}"
     }
 
     stages {
@@ -40,14 +41,14 @@ pipeline {
             steps {
                 script {
                     sh """
-                        OLD_CONTAINER=\$(docker ps -q --filter ancestor=${DOCKER_IMAGE}:${DOCKER_TAG})
-                        if [ ! -z "\$OLD_CONTAINER" ]; then
+                        OLD_CONTAINER=\$(docker ps -q --filter name=${CONTAINER_NAME})
+                        if [ "\$OLD_CONTAINER" ]; then
                             docker stop \$OLD_CONTAINER
                             docker rm \$OLD_CONTAINER
                         fi
                     """
 
-                    sh "docker run -d --expose 3000 -p ${HOST_PORT}:3000 ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:3000 ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
         }
