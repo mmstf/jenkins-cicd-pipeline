@@ -41,7 +41,7 @@ pipeline {
                 script {
                     sh """
                         OLD_CONTAINER=\$(docker ps -q --filter ancestor=${DOCKER_IMAGE}:${DOCKER_TAG})
-                        if [[ \$OLD_CONTAINER != "" ]]; then
+                        if [ ! -z "\$OLD_CONTAINER" ]; then
                             docker stop \$OLD_CONTAINER
                             docker rm \$OLD_CONTAINER
                         fi
