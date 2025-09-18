@@ -10,6 +10,7 @@ pipeline {
         DOCKER_TAG = 'v1.0'
         HOST_PORT = "${env.BRANCH_NAME == 'master' ? '3000' : '3001'}"
         CONTAINER_NAME = "${env.BRANCH_NAME == 'master' ? 'main-app' : 'dev-app'}"
+        DEPLOYMENT_PIPELINE_NAME = "${env.BRANCH_NAME == 'master' ? 'Deploy_to_main' : 'Deploy_to_dev'}"
     }
 
     stages {
@@ -37,19 +38,26 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Push image into docker hub') {
             steps {
                 script {
-                    sh """
-                        OLD_CONTAINER=\$(docker ps -q --filter name=${CONTAINER_NAME})
-                        if [ "\$OLD_CONTAINER" ]; then
-                            docker stop \$OLD_CONTAINER
-                            docker rm \$OLD_CONTAINER
-                        fi
-                    """
-
-                    sh "docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:3000 ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-pat', 
+                        usernameVariable: 'DOCKER_USER', 
+                        passwordVariable: 'DOCKER_PASS'
+                        )]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                    '''
                 }
+                }
+            }
+        }
+
+        stage('Trigger deployment pipeline') {
+            steps {
+                build job: ${env.DEPLOYMENT_PIPELINE_NAME}
             }
         }
     }
