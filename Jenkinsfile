@@ -1,9 +1,10 @@
 @Library('DeployToMaster') _
 pipeline {
-    agent any
-
-    tools {
-        nodejs 'node'
+    agent {
+        docker {
+            image 'node:7-alpine'
+            args '-v /var/run/docker.sock:/var/run/docker.sock' // for dind
+        }
     }
 
     environment {
@@ -33,9 +34,29 @@ pipeline {
             }
         }
 
+        stage('Check Dockerfile with Hadolint') {
+            steps {
+                script {
+                    sh '''
+                        hadolint -t error Dockerfile
+                    '''
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+            }
+        }
+
+        stage('Scan Docker Image for vunerabilities') {
+            steps {
+                script {
+                    def dockerImage = "${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    def vulnerabilities = sh(script: "trivy image --exit-code 0 --severity HIGH,MEDIUM,LOW --no-progress ${dockerImage}", returnStdout: true).trim()
+                    echo "Vulnerability Report:\n${vulnerabilities}"
+                }
             }
         }
 
@@ -70,7 +91,7 @@ pipeline {
                 branch 'master'
             }
             steps {
-                DeployToMaster()
+                deployToMaster()
             }
         }
     }
