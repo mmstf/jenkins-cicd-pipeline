@@ -1,3 +1,4 @@
+@Library('DeployToMaster') _
 pipeline {
     agent any
 
@@ -55,9 +56,21 @@ pipeline {
             }
         }
 
-        stage('Trigger deployment pipeline') {
+        stage('Trigger dev deployment pipeline') {
+            when {
+                branch 'dev'
+            }
             steps {
-                build job: "${env.DEPLOYMENT_PIPELINE_NAME}"
+                build job: "Deploy_to_dev" // "${env.DEPLOYMENT_PIPELINE_NAME}" // hard coded dev deployment
+            }
+        }
+
+        stage('Trigger master deployment pipeline') {
+            when {
+                branch 'master'
+            }
+            steps {
+                DeployToMaster()
             }
         }
     }
