@@ -70,7 +70,7 @@ pipeline {
                 branch 'master'
             }
             steps {
-                DeployToMaster()
+                deployToMaster()
             }
         }
     }
