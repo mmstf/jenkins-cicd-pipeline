@@ -1,10 +1,11 @@
 @Library('DeployToMaster') _
 pipeline {
     agent {
-        docker {
-            image 'node:7-alpine'
-            args '-v /var/run/docker.sock:/var/run/docker.sock' // for dind
-        }
+        label 'docker'
+    }
+
+    tools {
+        nodejs 'node'
     }
 
     environment {
